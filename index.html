@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Educational Quiz Game</title>
+  <title>Language Learning Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,10 +11,7 @@
       padding: 2rem;
       text-align: center;
     }
-    h1 {
-      color: #2a2a2a;
-    }
-    #quiz-container {
+    #game-container {
       background: white;
       padding: 2rem;
       border-radius: 10px;
@@ -36,71 +33,105 @@
     .btn:hover {
       background: #0056b3;
     }
+    select {
+      padding: 0.5rem;
+      font-size: 16px;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Educational Quiz Game</h1>
-  <div id="quiz-container">
+  <h1>Language Learning Quiz</h1>
+
+  <div id="game-container">
+    <label for="language-select">Choose a language:</label>
+    <select id="language-select">
+      <option value="Spanish">Spanish</option>
+      <option value="French">French</option>
+      <option value="German">German</option>
+    </select>
+
     <h2 id="question">Loading...</h2>
     <div id="answers"></div>
     <p id="score"></p>
-    <button id="next-btn" class="btn" style="display: none;">Next Question</button>
+
+    <button id="next-btn" class="btn" style="display: none;">Next</button>
     <button id="restart-btn" class="btn" style="display: none;">Play Again</button>
   </div>
 
   <script>
-    const questions = [
-      // Math
-      { q: "What is 12 × 8?", a: ["96", "88", "100", "108"], correct: 0, category: "Math" },
-      { q: "What is the square root of 81?", a: ["7", "8", "9", "10"], correct: 2, category: "Math" },
-
-      // Biology
-      { q: "What organ pumps blood through the body?", a: ["Lungs", "Liver", "Heart", "Brain"], correct: 2, category: "Biology" },
-      { q: "Which part of the cell contains DNA?", a: ["Mitochondria", "Nucleus", "Cytoplasm", "Ribosome"], correct: 1, category: "Biology" },
-
-      // Chemistry
-      { q: "What is the chemical symbol for water?", a: ["O2", "CO2", "H2O", "NaCl"], correct: 2, category: "Chemistry" },
-      { q: "Which gas do plants absorb?", a: ["Oxygen", "Hydrogen", "Carbon Dioxide", "Nitrogen"], correct: 2, category: "Chemistry" },
-
-      // Physics
-      { q: "What force keeps us on the ground?", a: ["Magnetism", "Friction", "Gravity", "Electricity"], correct: 2, category: "Physics" },
-      { q: "What is the unit of electric current?", a: ["Watt", "Volt", "Ampere", "Ohm"], correct: 2, category: "Physics" },
-
-      // Languages
-      { q: "How do you say 'hello' in Spanish?", a: ["Bonjour", "Hallo", "Hola", "Ciao"], correct: 2, category: "Languages" },
-      { q: "Which language is primarily spoken in Brazil?", a: ["Spanish", "Portuguese", "English", "French"], correct: 1, category: "Languages" }
-    ];
-
-    let currentIndex = 0;
-    let score = 0;
-    let shuffledQuestions = [];
+    const vocabulary = {
+      Spanish: [
+        { en: "Dog", foreign: "Perro" },
+        { en: "House", foreign: "Casa" },
+        { en: "Apple", foreign: "Manzana" },
+        { en: "Book", foreign: "Libro" },
+        { en: "Water", foreign: "Agua" }
+      ],
+      French: [
+        { en: "Dog", foreign: "Chien" },
+        { en: "House", foreign: "Maison" },
+        { en: "Apple", foreign: "Pomme" },
+        { en: "Book", foreign: "Livre" },
+        { en: "Water", foreign: "Eau" }
+      ],
+      German: [
+        { en: "Dog", foreign: "Hund" },
+        { en: "House", foreign: "Haus" },
+        { en: "Apple", foreign: "Apfel" },
+        { en: "Book", foreign: "Buch" },
+        { en: "Water", foreign: "Wasser" }
+      ]
+    };
 
     const questionEl = document.getElementById("question");
     const answersEl = document.getElementById("answers");
+    const scoreEl = document.getElementById("score");
     const nextBtn = document.getElementById("next-btn");
     const restartBtn = document.getElementById("restart-btn");
-    const scoreEl = document.getElementById("score");
+    const languageSelect = document.getElementById("language-select");
+
+    let selectedLanguage = "Spanish";
+    let shuffledQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+
+    languageSelect.onchange = () => {
+      selectedLanguage = languageSelect.value;
+      startGame();
+    };
 
     function startGame() {
-      shuffledQuestions = questions.sort(() => Math.random() - 0.5).slice(0, 5);
       currentIndex = 0;
       score = 0;
+      scoreEl.innerText = "";
       nextBtn.style.display = "none";
       restartBtn.style.display = "none";
-      scoreEl.innerText = "";
+      const vocabList = vocabulary[selectedLanguage];
+      shuffledQuestions = vocabList.sort(() => 0.5 - Math.random()).slice(0, 5);
       showQuestion();
     }
 
     function showQuestion() {
-      const q = shuffledQuestions[currentIndex];
-      questionEl.innerText = `${q.category}: ${q.q}`;
+      const current = shuffledQuestions[currentIndex];
+      questionEl.innerText = `What is "${current.en}" in ${selectedLanguage}?`;
+
+      // Generate 3 wrong answers + 1 correct
+      const wrongOptions = Object.values(vocabulary[selectedLanguage])
+        .filter(word => word.foreign !== current.foreign)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3)
+        .map(word => word.foreign);
+
+      const options = [...wrongOptions, current.foreign].sort(() => 0.5 - Math.random());
+
       answersEl.innerHTML = "";
-      q.a.forEach((answer, index) => {
+      options.forEach(option => {
         const btn = document.createElement("button");
         btn.classList.add("btn");
-        btn.innerText = answer;
-        btn.onclick = () => selectAnswer(index === q.correct);
+        btn.innerText = option;
+        btn.onclick = () => selectAnswer(option === current.foreign);
         answersEl.appendChild(btn);
       });
     }
@@ -108,9 +139,9 @@
     function selectAnswer(correct) {
       if (correct) {
         score++;
-        scoreEl.innerText = `Correct! Score: ${score}`;
+        scoreEl.innerText = `✅ Correct! Score: ${score}`;
       } else {
-        scoreEl.innerText = `Wrong. Score: ${score}`;
+        scoreEl.innerText = `❌ Incorrect. Score: ${score}`;
       }
       nextBtn.style.display = "inline-block";
     }
@@ -118,8 +149,8 @@
     nextBtn.onclick = () => {
       currentIndex++;
       if (currentIndex < shuffledQuestions.length) {
-        showQuestion();
         nextBtn.style.display = "none";
+        showQuestion();
       } else {
         endGame();
       }
@@ -128,27 +159,28 @@
     restartBtn.onclick = startGame;
 
     function endGame() {
-      questionEl.innerText = `Quiz Complete! You scored ${score}/${shuffledQuestions.length}`;
+      questionEl.innerText = `Game Over! Final Score: ${score}/${shuffledQuestions.length}`;
       answersEl.innerHTML = "";
       nextBtn.style.display = "none";
       restartBtn.style.display = "inline-block";
 
-      // Optional: Call backend reward API
+      // OPTIONAL: Reward logic if score >= 3
       if (score >= 3) {
         fetch("https://your-backend.com/reward", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            wallet: "rPLAYER_XRPL_ADDRESS", // Replace this dynamically
+            wallet: "rPLAYER_XRPL_ADDRESS",  // Replace with actual address
             amount: 10
           })
         })
         .then(res => res.json())
-        .then(data => alert("🎉 Reward sent via XRP Ledger!"));
+        .then(data => alert("🎉 You've been rewarded with GAME tokens!"))
+        .catch(() => alert("Error sending reward"));
       }
     }
 
-    // Start game on load
+    // Auto-start on page load
     startGame();
   </script>
 </body>
