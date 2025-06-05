@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Language Learning Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi-Subject Educational Quiz Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,110 +15,182 @@
       background: white;
       padding: 2rem;
       border-radius: 10px;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .btn {
-      display: block;
-      margin: 0.5rem auto;
-      padding: 0.75rem 1.5rem;
-      border: none;
+    select, .btn {
+      padding: 0.5rem 1rem;
+      font-size: 16px;
+      margin: 0.5rem;
       border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .btn {
+      cursor: pointer;
       background: #007bff;
       color: white;
-      font-size: 16px;
-      cursor: pointer;
+      border: none;
+      display: inline-block;
+      min-width: 120px;
     }
     .btn:hover {
       background: #0056b3;
     }
-    select {
-      padding: 0.5rem;
-      font-size: 16px;
-      margin-bottom: 1rem;
+    #answers button {
+      display: block;
+      margin: 0.5rem auto;
+      width: 80%;
+      max-width: 350px;
+    }
+    #score {
+      font-weight: bold;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>Language Learning Quiz</h1>
+  <h1>Multi-Subject Educational Quiz Game</h1>
 
   <div id="game-container">
-    <label for="language-select">Choose a language:</label>
-    <select id="language-select">
-      <option value="Spanish">Spanish</option>
-      <option value="French">French</option>
-      <option value="German">German</option>
-    </select>
+    <div>
+      <label for="subject-select">Choose a subject:</label>
+      <select id="subject-select">
+        <option value="Language">Language Learning</option>
+        <option value="Math">Math</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Biology">Biology</option>
+      </select>
+    </div>
 
-    <h2 id="question">Loading...</h2>
+    <div id="language-picker" style="display:none; margin-top:1rem;">
+      <label for="language-select">Select language:</label>
+      <select id="language-select">
+        <option value="Spanish">Spanish</option>
+        <option value="French">French</option>
+        <option value="German">German</option>
+      </select>
+    </div>
+
+    <h2 id="question">Please select a subject to start.</h2>
     <div id="answers"></div>
     <p id="score"></p>
 
-    <button id="next-btn" class="btn" style="display: none;">Next</button>
-    <button id="restart-btn" class="btn" style="display: none;">Play Again</button>
+    <button id="next-btn" class="btn" style="display:none;">Next</button>
+    <button id="restart-btn" class="btn" style="display:none;">Play Again</button>
   </div>
 
-  <script>
-    const vocabulary = {
-      Spanish: [
-        { en: "Dog", foreign: "Perro" },
-        { en: "House", foreign: "Casa" },
-        { en: "Apple", foreign: "Manzana" },
-        { en: "Book", foreign: "Libro" },
-        { en: "Water", foreign: "Agua" }
-      ],
-      French: [
-        { en: "Dog", foreign: "Chien" },
-        { en: "House", foreign: "Maison" },
-        { en: "Apple", foreign: "Pomme" },
-        { en: "Book", foreign: "Livre" },
-        { en: "Water", foreign: "Eau" }
-      ],
-      German: [
-        { en: "Dog", foreign: "Hund" },
-        { en: "House", foreign: "Haus" },
-        { en: "Apple", foreign: "Apfel" },
-        { en: "Book", foreign: "Buch" },
-        { en: "Water", foreign: "Wasser" }
-      ]
-    };
+<script>
+  const languageVocab = {
+    Spanish: [
+      { en: "Dog", foreign: "Perro" },
+      { en: "House", foreign: "Casa" },
+      { en: "Apple", foreign: "Manzana" },
+      { en: "Book", foreign: "Libro" },
+      { en: "Water", foreign: "Agua" }
+    ],
+    French: [
+      { en: "Dog", foreign: "Chien" },
+      { en: "House", foreign: "Maison" },
+      { en: "Apple", foreign: "Pomme" },
+      { en: "Book", foreign: "Livre" },
+      { en: "Water", foreign: "Eau" }
+    ],
+    German: [
+      { en: "Dog", foreign: "Hund" },
+      { en: "House", foreign: "Haus" },
+      { en: "Apple", foreign: "Apfel" },
+      { en: "Book", foreign: "Buch" },
+      { en: "Water", foreign: "Wasser" }
+    ]
+  };
 
-    const questionEl = document.getElementById("question");
-    const answersEl = document.getElementById("answers");
-    const scoreEl = document.getElementById("score");
-    const nextBtn = document.getElementById("next-btn");
-    const restartBtn = document.getElementById("restart-btn");
-    const languageSelect = document.getElementById("language-select");
+  const quizQuestions = {
+    Math: [
+      { q: "What is 12 × 8?", a: ["96", "88", "100", "108"], correct: 0 },
+      { q: "What is the square root of 81?", a: ["7", "8", "9", "10"], correct: 2 }
+    ],
+    Biology: [
+      { q: "What organ pumps blood through the body?", a: ["Lungs", "Liver", "Heart", "Brain"], correct: 2 },
+      { q: "Which part of the cell contains DNA?", a: ["Mitochondria", "Nucleus", "Cytoplasm", "Ribosome"], correct: 1 }
+    ],
+    Chemistry: [
+      { q: "What is the chemical symbol for water?", a: ["O2", "CO2", "H2O", "NaCl"], correct: 2 },
+      { q: "Which gas do plants absorb?", a: ["Oxygen", "Hydrogen", "Carbon Dioxide", "Nitrogen"], correct: 2 }
+    ],
+    Physics: [
+      { q: "What force keeps us on the ground?", a: ["Magnetism", "Friction", "Gravity", "Electricity"], correct: 2 },
+      { q: "What is the unit of electric current?", a: ["Watt", "Volt", "Ampere", "Ohm"], correct: 2 }
+    ]
+  };
 
-    let selectedLanguage = "Spanish";
-    let shuffledQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
+  // DOM elements
+  const subjectSelect = document.getElementById("subject-select");
+  const languagePicker = document.getElementById("language-picker");
+  const languageSelect = document.getElementById("language-select");
+  const questionEl = document.getElementById("question");
+  const answersEl = document.getElementById("answers");
+  const scoreEl = document.getElementById("score");
+  const nextBtn = document.getElementById("next-btn");
+  const restartBtn = document.getElementById("restart-btn");
 
-    languageSelect.onchange = () => {
+  let selectedSubject = null;
+  let selectedLanguage = "Spanish";
+  let currentIndex = 0;
+  let score = 0;
+  let questions = [];
+
+  // Show or hide language picker based on subject
+  subjectSelect.onchange = () => {
+    selectedSubject = subjectSelect.value;
+    if (selectedSubject === "Language") {
+      languagePicker.style.display = "block";
       selectedLanguage = languageSelect.value;
-      startGame();
-    };
+    } else {
+      languagePicker.style.display = "none";
+    }
+    startGame();
+  };
 
-    function startGame() {
-      currentIndex = 0;
-      score = 0;
-      scoreEl.innerText = "";
-      nextBtn.style.display = "none";
-      restartBtn.style.display = "none";
-      const vocabList = vocabulary[selectedLanguage];
-      shuffledQuestions = vocabList.sort(() => 0.5 - Math.random()).slice(0, 5);
-      showQuestion();
+  languageSelect.onchange = () => {
+    selectedLanguage = languageSelect.value;
+    if (selectedSubject === "Language") {
+      startGame();
+    }
+  };
+
+  function startGame() {
+    score = 0;
+    currentIndex = 0;
+    scoreEl.innerText = "";
+    nextBtn.style.display = "none";
+    restartBtn.style.display = "none";
+
+    if (selectedSubject === "Language") {
+      // Prepare vocab quiz questions
+      let vocabList = [...languageVocab[selectedLanguage]];
+      questions = vocabList.sort(() => 0.5 - Math.random()).slice(0, 5);
+    } else {
+      // Prepare subject quiz questions
+      questions = [...quizQuestions[selectedSubject]].sort(() => 0.5 - Math.random()).slice(0, 5);
     }
 
-    function showQuestion() {
-      const current = shuffledQuestions[currentIndex];
+    showQuestion();
+  }
+
+  function showQuestion() {
+    answersEl.innerHTML = "";
+    scoreEl.innerText = "";
+
+    if (selectedSubject === "Language") {
+      // Language vocab flashcard style
+      const current = questions[currentIndex];
       questionEl.innerText = `What is "${current.en}" in ${selectedLanguage}?`;
 
-      // Generate 3 wrong answers + 1 correct
-      const wrongOptions = Object.values(vocabulary[selectedLanguage])
+      // Generate 3 wrong options
+      const wrongOptions = languageVocab[selectedLanguage]
         .filter(word => word.foreign !== current.foreign)
         .sort(() => 0.5 - Math.random())
         .slice(0, 3)
@@ -126,62 +198,82 @@
 
       const options = [...wrongOptions, current.foreign].sort(() => 0.5 - Math.random());
 
-      answersEl.innerHTML = "";
       options.forEach(option => {
         const btn = document.createElement("button");
-        btn.classList.add("btn");
+        btn.className = "btn";
         btn.innerText = option;
         btn.onclick = () => selectAnswer(option === current.foreign);
         answersEl.appendChild(btn);
       });
+
+    } else {
+      // Science/math multiple choice style
+      const current = questions[currentIndex];
+      questionEl.innerText = current.q;
+
+      current.a.forEach((answer, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.innerText = answer;
+        btn.onclick = () => selectAnswer(idx === current.correct);
+        answersEl.appendChild(btn);
+      });
     }
+  }
 
-    function selectAnswer(correct) {
-      if (correct) {
-        score++;
-        scoreEl.innerText = `✅ Correct! Score: ${score}`;
-      } else {
-        scoreEl.innerText = `❌ Incorrect. Score: ${score}`;
-      }
-      nextBtn.style.display = "inline-block";
+  function selectAnswer(correct) {
+    if (correct) {
+      score++;
+      scoreEl.innerText = `✅ Correct! Score: ${score}`;
+    } else {
+      scoreEl.innerText = `❌ Incorrect. Score: ${score}`;
     }
+    nextBtn.style.display = "inline-block";
+  }
 
-    nextBtn.onclick = () => {
-      currentIndex++;
-      if (currentIndex < shuffledQuestions.length) {
-        nextBtn.style.display = "none";
-        showQuestion();
-      } else {
-        endGame();
-      }
-    };
-
-    restartBtn.onclick = startGame;
-
-    function endGame() {
-      questionEl.innerText = `Game Over! Final Score: ${score}/${shuffledQuestions.length}`;
-      answersEl.innerHTML = "";
+  nextBtn.onclick = () => {
+    currentIndex++;
+    if (currentIndex < questions.length) {
       nextBtn.style.display = "none";
-      restartBtn.style.display = "inline-block";
-
-      // OPTIONAL: Reward logic if score >= 3
-      if (score >= 3) {
-        fetch("https://your-backend.com/reward", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            wallet: "rPLAYER_XRPL_ADDRESS",  // Replace with actual address
-            amount: 10
-          })
-        })
-        .then(res => res.json())
-        .then(data => alert("🎉 You've been rewarded with GAME tokens!"))
-        .catch(() => alert("Error sending reward"));
-      }
+      showQuestion();
+    } else {
+      endGame();
     }
+  };
 
-    // Auto-start on page load
+  restartBtn.onclick = () => {
     startGame();
-  </script>
+  };
+
+  function endGame() {
+    questionEl.innerText = `Game Over! Your score: ${score}/${questions.length}`;
+    answersEl.innerHTML = "";
+    nextBtn.style.display = "none";
+    restartBtn.style.display = "inline-block";
+
+    // Reward logic placeholder: reward if score >= 3
+    if (score >= 3) {
+      // Replace wallet address and reward logic with your backend & XRPL integration
+      fetch("https://your-backend.com/reward", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: "rPLAYER_XRPL_ADDRESS", // Replace dynamically
+          amount: 10
+        })
+      })
+      .then(res => res.json())
+      .then(() => alert("🎉 Congratulations! You earned GAME tokens!"))
+      .catch(() => alert("⚠️ Reward sending failed. Try again later."));
+    }
+  }
+
+  // Initialize defaults and start
+  selectedSubject = subjectSelect.value;
+  if(selectedSubject === "Language") languagePicker.style.display = "block";
+  startGame();
+
+</script>
+
 </body>
 </html>
